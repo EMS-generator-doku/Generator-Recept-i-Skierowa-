@@ -352,11 +352,12 @@
 
 
         // 4. Obsługa Podpisu
-        const signatureBase64 = getParam('sig');
+        const signatureSource = getParam('sig'); // Zmieniono nazwę zmiennej dla jasności
         const signatureImg = document.getElementById('dispSignature');
 
-        if (signatureBase64 && signatureBase64.startsWith('data:image')) {
-            signatureImg.src = signatureBase64; // Użycie Base64 jako źródła obrazu
+        // ZMIANA: Sprawdź, czy to Base64 LUB link (zaczyna się od 'http')
+        if (signatureSource && (signatureSource.startsWith('data:image') || signatureSource.startsWith('http'))) {
+            signatureImg.src = signatureSource; // Użyj Base64 LUB linku jako źródła
             signatureImg.style.display = 'block';
         }
 
@@ -437,3 +438,4 @@
 </body>
 
 </html>
+
