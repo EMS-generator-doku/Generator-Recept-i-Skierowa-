@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Generator E-Skierowań - Formularz</title>
+  <style>
+    /* ---------------------------------- */
+    /* OPIS: Sekcja Stylów CSS (UI) */
+    /* Standardowe style dla interfejsu aplikacji */
+    /* ---------------------------------- */
+    :root {
+      --bg: #f4f6fb; /* Kolor tła strony */
+      --card: #ffffff; /* Kolor tła paneli */
+      --accent: #0b67ff; /* Główny kolor akcentu */
+      --muted: #6b7280; /* Kolor tekstu pomocniczego */
+      --border: #e6e9ef; /* Kolor obramowań */
+      --shadow: 0 6px 18px rgba(12, 15, 30, 0.06);
+    }
+    * {
+      box-sizing: border-box; /* Ułatwia układ */
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: #0f172a;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1100px; /* Maksymalna szerokość zawartości */
+      margin: 0 auto;
+    }
+    .header {
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .brand {
+      font-weight: 700;
+      font-size: 24px;
+      color: var(--accent);
+    }
+    .muted {
+        color: var(--muted);
+        font-size: 14px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr; /* Podział na Formularz i Akcje */
+      gap: 20px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h3 {
+      margin-top: 0;
+      color: #1f2937;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      margin-top: 12px;
+    }
+    input[type=text], input[type=number], select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .row {
+      display: flex;
+      gap: 10px; /* Odstęp między kolumnami w wierszu */
+    }
+    .row > * {
+      flex: 1; /* Równy podział szerokości */
+    }
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      transition: background 0.2s;
+      margin-top: 15px;
+    }
+    .btn.ghost {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    .signature-pad {
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      cursor: crosshair;
+      margin-top: 10px;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .actions .btn {
+        margin-top: 0;
+        flex: 1;
+    }
+    .link-output {
+        padding: 15px;
+        background: #eef2ff;
+        border: 1px solid #d3e0ff;
+        border-radius: 8px;
+        word-break: break-all;
+        font-size: 14px;
+        margin-top: 20px;
+        font-weight: 500;
+    }
+    /* OPIS: Styl dla placeholderu logo dopasowany do proporcji 637x168 */
+    .logo-placeholder {
+        border: 1px dashed #ccc; 
+        height: 80px; /* Stała wysokość */
+        width: 100%; /* Pełna szerokość karty */
+        max-width: 304px; /* Ograniczenie szerokości dla lepszej wizualizacji proporcji */
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        font-size: 12px; 
+        color: var(--muted); 
+        border-radius: 8px;
+    }
+    @media(max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">Generator E-Skierowań - Symulator</div>
+      <div class="muted">Wypełnij formularz, aby wygenerować link do podglądu skierowania.</div>
+    </div>
+
+    <form id="referralForm" class="layout">
+      <div>
+        <div class="card">
+          <h3>1. Dane Pacjenta</h3>
+          <div class="row">
+            <div>
+              <label for="patientName">Imię</label>
+              <input id="patientName" name="patientName" type="text" placeholder="Jan" value="Jan" required />
+            </div>
+            <div>
+              <label for="patientSurname">Nazwisko</label>
+              <input id="patientSurname" name="patientSurname" type="text" placeholder="Kowalski" value="Kowalski" required />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="pesel">PESEL</label>
+              <input id="pesel" name="pesel" type="text" placeholder="88010112345" value="88010112345" required minlength="11" maxlength="11" />
+            </div>
+            <div>
+              <label for="dob">Data urodzenia (R-M-D)</label>
+              <input id="dob" name="dob" type="text" placeholder="1988-01-01" value="1988-01-01" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>2. Cel Skierowania</h3>
+          <label for="referralType">Rodzaj skierowania</label>
+          <select id="referralType" name="referralType" required>
+            <option value="Poradnia Specjalistyczna">Poradnia Specjalistyczna (np. Kardiologiczna)</option>
+            <option value="Badanie Diagnostyczne">Badanie Diagnostyczne (np. Rezonans Magnetyczny)</option>
+            <option value="Szpital">Leczenie Szpitalne</option>
+            <option value="Fizjoterapia">Fizjoterapia / Rehabilitacja</option>
+          </select>
+
+          <label for="targetUnit">Cel/Nazwa Jednostki Docelowej</label>
+          <input id="targetUnit" name="targetUnit" type="text" placeholder="np. Poradnia Kardiologiczna, Szpital XYZ" value="Poradnia Kardiologiczna" required />
+
+          <label for="icd10">Rozpoznanie ICD-10</label>
+          <input id="icd10" name="icd10" type="text" placeholder="Wpisz kod lub szukaj (np. I10)" value="I10" list="icd10-codes" required />
+          
+          <datalist id="icd10-codes">
+            <option value="I10">Nadciśnienie tętnicze pierwotne (samoistne)</option>
+            <option value="K21.0">Choroba refluksowa z zapaleniem przełyku</option>
+            <option value="J45">Astma</option>
+            <option value="F32">Epizod depresyjny</option>
+            <option value="E11">Cukrzyca insulinoniezależna (typ 2)</option>
+            <option value="M54.5">Ból krzyża, nieokreślony</option>
+          </datalist>
+
+          <label for="description">Uzasadnienie/Opis Stanu Klinicznego</label>
+          <textarea id="description" name="description" rows="4" placeholder="Opisz powód wystawienia skierowania i istotne informacje z wywiadu." required>Pacjent z nadciśnieniem tętniczym, wymaga pogłębionej diagnostyki kardiologicznej i konsultacji specjalistycznej.</textarea>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>3. Dane Lekarza i Jednostki</h3>
+          <label for="docName">Imię i Nazwisko Lekarza</label>
+          <input id="docName" name="docName" type="text" placeholder="dr Anna Nowak" value="dr Anna Nowak" required />
+          <div class="row">
+            <div>
+              <label for="badgeNumber">Numer Odznaki</label> 
+              <input id="badgeNumber" name="badgeNumber" type="text" placeholder="1234567" value="1234567" required />
+            </div>
+            <div>
+              <label for="issueDate">Data wystawienia</label>
+              <input id="issueDate" name="issueDate" type="date" required />
+            </div>
+          </div>
+          <label for="unitName">Nazwa jednostki wystawiającej</label>
+          <input id="unitName" name="unitName" type="text" value="NZOZ Rodzina" required />
+          <label>Miejsce na Logo Jednostki (Podgląd)</label>
+          <div class="logo-placeholder">
+            Miejsce zarezerwowane na logo
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>4. Podpis i Kody</h3>
+          
+          <label for="sigUrl">Wklej URL Obrazu Podpisu (np. z Imgur)</label>
+          <input id="sigUrl" name="sigUrl" type="text" placeholder="https://przykładowy.link/do/podpisu.png" />
+          
+          <label style="margin-top: 20px;">Lub Narysuj Podpis (rysowanie ma priorytet)</label>
+          <canvas id="signatureCanvas" class="signature-pad" width="360" height="100"></canvas>
+          <div class="actions">
+            <button type="button" id="clearSigBtn" class="btn ghost">Wyczyść</button>
+            <label for="uploadSig" class="btn" style="flex: 1; text-align: center;">Wgraj Plik</label>
+            <input type="file" id="uploadSig" style="display: none;" accept="image/*" />
+          </div>
+          <input type="hidden" id="signatureBase64" name="signatureBase64" />
+
+          <label for="eReferralCode" style="margin-top: 15px;">Kod E-Skierowania (4 cyfry)</label>
+          <input id="eReferralCode" name="eReferralCode" type="text" placeholder="np. 4567" value="4567" required minlength="4" maxlength="4" />
+
+          <button type="submit" id="generateLinkBtn" class="btn">Wygeneruj Link do Skierowania</button>
+
+          <div id="resultLink" class="link-output" style="display: none;">
+            **Link do podglądu:**
+            <p id="generatedUrl" style="margin: 5px 0 0; font-weight: 700;"></p>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // ----------------------------------
+    // OPIS: Logika JavaScript - Formularz
+    // Kodowanie i walidacja podpisu/linku
+    // ----------------------------------
+
+    // Elementy DOM
+    const form = document.getElementById('referralForm');
+    const signatureBase64Input = document.getElementById('signatureBase64');
+    const sigUrlInput = document.getElementById('sigUrl'); 
+    
+    // Canvas do podpisu
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    const clearSigBtn = document.getElementById('clearSigBtn');
+    const uploadSigInput = document.getElementById('uploadSig');
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    
+    // OPIS: Ustawienie dzisiejszej daty jako domyślnej
+    document.getElementById('issueDate').valueAsDate = new Date();
+
+    // ----------------------------------
+    // FUNKCJA: Rysowanie Podpisu (Canvas)
+    // ----------------------------------
+    
+    // OPIS: Główna funkcja rysująca na canvas
+    function draw(e) {
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.clientX || e.touches[0].clientX;
+      const clientY = e.clientY || e.touches[0].clientY;
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      [lastX, lastY] = [x, y];
+    }
+    
+    // OPIS: Start rysowania (eventy myszy/dotyku)
+    ['mousedown', 'touchstart'].forEach(eventName => {
+      canvas.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.clientX || e.touches[0].clientX;
+        const clientY = e.clientY || e.touches[0].clientY;
+        [lastX, lastY] = [clientX - rect.left, clientY - rect.top];
+      });
+    });
+    
+    // OPIS: Ruch (rysowanie)
+    ['mousemove', 'touchmove'].forEach(eventName => {
+      canvas.addEventListener(eventName, draw);
+    });
+    
+    // OPIS: Koniec rysowania i zapis Base64
+    ['mouseup', 'touchend', 'mouseout'].forEach(eventName => {
+      canvas.addEventListener(eventName, () => {
+        if (isDrawing) {
+            isDrawing = false;
+            saveSignatureFromCanvas();
+        }
+      });
+    });
+    
+    // OPIS: Czyści canvas, pole hidden i pole URL
+    clearSigBtn.addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      signatureBase64Input.value = '';
+      sigUrlInput.value = ''; 
+    });
+    
+    // OPIS: Zapisuje podpis z canvasa do Base64 (ma priorytet nad URL)
+    function saveSignatureFromCanvas() {
+        const isEmpty = !ctx.getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0);
+        if (!isEmpty) {
+            signatureBase64Input.value = canvas.toDataURL('image/png');
+        } else {
+            signatureBase64Input.value = '';
+        }
+    }
+    
+    // OPIS: Wczytywanie pliku (konwertuje na Base64, które ma najwyższy priorytet)
+    uploadSigInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); 
+                signatureBase64Input.value = event.target.result; 
+                sigUrlInput.value = ''; // Wyczyść pole URL, jeśli wgrano plik
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // ----------------------------------
+    // FUNKCJA: Generowanie Linku (Submission)
+    // ----------------------------------
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // OPIS: Określenie finalnego źródła podpisu (priorytet: Base64 > URL)
+      let finalSignatureData = '';
+      const sigUrl = sigUrlInput.value.trim();
+      
+      saveSignatureFromCanvas(); 
+      if (signatureBase64Input.value) {
+          finalSignatureData = signatureBase64Input.value;
+      } 
+      else if (sigUrl) {
+          finalSignatureData = sigUrl; // Używamy URL
+      }
+
+      // OPIS: Zbieranie reszty danych z formularza
+      const data = {
+        patientName: document.getElementById('patientName').value,
+        patientSurname: document.getElementById('patientSurname').value,
+        pesel: document.getElementById('pesel').value,
+        dob: document.getElementById('dob').value,
+        referralType: document.getElementById('referralType').value,
+        targetUnit: document.getElementById('targetUnit').value,
+        icd10: document.getElementById('icd10').value, // OPIS: Pobranie wartości z pola ICD-10
+        description: document.getElementById('description').value,
+        docName: document.getElementById('docName').value,
+        badgeNumber: document.getElementById('badgeNumber').value, 
+        issueDate: document.getElementById('issueDate').value,
+        unitName: document.getElementById('unitName').value,
+        eReferralCode: document.getElementById('eReferralCode').value
+      };
+
+      // OPIS: Budowanie URL z zakodowanymi parametrami
+      const params = new URLSearchParams();
+      params.append('pn', encodeURIComponent(data.patientName));
+      params.append('ps', encodeURIComponent(data.patientSurname));
+      params.append('p', data.pesel);
+      params.append('d', data.dob);
+      params.append('rt', encodeURIComponent(data.referralType));
+      params.append('tu', encodeURIComponent(data.targetUnit));
+      params.append('i', encodeURIComponent(data.icd10)); // OPIS: Kodowanie ICD-10
+      params.append('des', encodeURIComponent(data.description));
+      params.append('dn', encodeURIComponent(data.docName));
+      params.append('bn', data.badgeNumber); 
+      params.append('id', data.issueDate);
+      params.append('un', encodeURIComponent(data.unitName));
+      params.append('erc', data.eReferralCode);
+      params.append('sig', encodeURIComponent(finalSignatureData)); // Base64 lub URL
+
+      // OPIS: Finalny link
+      const finalUrl = `skierowanie_view.html?${params.toString()}`;
+
+      // OPIS: Wyświetlanie linku
+      const resultLinkDiv = document.getElementById('resultLink');
+      const generatedUrlP = document.getElementById('generatedUrl');
+      generatedUrlP.innerHTML = `<a href="${finalUrl}" target="_blank">${finalUrl}</a>`;
+      resultLinkDiv.style.display = 'block';
+
+    });
+  </script>
+</body>
+</html>
