@@ -4,11 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Podgląd E-Skierowania</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <style>
-        /* ---------------------------------- */
-        /* OPIS: Style dla dokumentu (A4) */
-        /* ---------------------------------- */
         :root {
             --paper-width: 210mm;
             --bg: #f4f6fb;
@@ -33,11 +33,15 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             padding: 20mm;
             margin-bottom: 20px;
+            position: relative; /* Dla znaku wodnego */
+            overflow: hidden;
         }
+        
+        /* Przyciski kontrolne */
         .controls {
             width: var(--paper-width);
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             gap: 10px;
             margin-bottom: 20px;
         }
@@ -50,73 +54,70 @@
             cursor: pointer;
             font-weight: 600;
         }
-        /* ---------------------------------- */
-        /* OPIS: Style elementów dokumentu */
-        /* ---------------------------------- */
+        .btn:hover {
+            background: #0959cc;
+        }
+        .btn:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+
+        /* ----- Style zawartości ----- */
         .ref-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+        .ref-section {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #000;
+        }
+        .ref-label {
+            font-size: 10px;
+            color: #555;
+            margin-top: 5px;
+            display: block;
+        }
+        .ref-value {
+            font-weight: bold;
+            font-size: 12px;
+            display: block;
         }
         .ref-title {
             font-weight: bold;
-            font-size: 20px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-            width: 100%;
-            text-align: center;
+            font-size: 24px;
+            text-transform: uppercase;
         }
-        .ref-box {
-            border: 1px solid #000;
-            padding: 10px;
-            margin-bottom: 15px;
-        }
-        .ref-box h4 {
-            margin: -10px -10px 10px -10px;
-            padding: 5px 10px;
-            background-color: #f0f0f0;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .data-row {
-            display: flex;
-            margin-bottom: 10px;
+        .two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
-        .data-field {
-            flex: 1;
-        }
-        .data-label {
-            font-size: 10px;
-            color: #555;
-            display: block;
-            margin-top: 3px;
-            border-top: 1px dashed #ccc;
-            padding-top: 2px;
-        }
-        .data-value {
-            font-weight: bold;
-            font-size: 13px;
-            display: block;
-        }
-        .description-box {
-            border: 1px solid #000;
+        .ref-reason-box {
+            margin-top: 10px;
             padding: 10px;
-            min-height: 100px;
-            white-space: pre-wrap;
+            border: 1px solid #eee;
+            background: #fdfdfd;
+            border-radius: 4px;
         }
-        .signature-section {
+        
+        /* Stopka (Podpis i QR) */
+        .ref-footer {
+            margin-top: 40px;
             display: flex;
             justify-content: space-between;
-            margin-top: 50px;
             align-items: flex-end;
         }
-        .signature-pad {
+        .signature-area {
             width: 45%;
             border-top: 1px solid #000;
             padding-top: 5px;
             text-align: center;
+        }
+        .signature-area p {
+            font-size: 10px;
+            margin: 5px 0 0;
         }
         .signature-img {
             max-width: 100%;
@@ -124,29 +125,44 @@
             display: block;
             margin: 0 auto 5px;
         }
-        /* OPIS: Zmienione style dla logo (proporcja 3.8:1) */
-        .logo-box {
-            width: 35%; /* Większa szerokość */
-            height: 90px; /* Większa wysokość dla zachowania proporcji */
-            min-height: 50px; 
-            border: 1px dashed #aaa; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 10px; 
-            color: #555; 
-            border-radius: 4px;
+        .code-area {
+            text-align: center;
         }
-        .logo-box img {
-            max-width: 100%; 
-            max-height: 100%; 
-            object-fit: contain; /* Zapewnia, że obraz mieści się w boxie */
+        
+        /* Znak wodny */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            opacity: 0.08;
+            z-index: 0; /* Pod treścią */
+            pointer-events: none;
         }
-        /* Druk */
+        .watermark img {
+            width: 600px;
+            height: auto;
+            display: block;
+        }
+        
+        /* Ustawienie treści NAD znakiem wodnym */
+        .ref-header, .ref-section, .ref-footer {
+            position: relative;
+            z-index: 1;
+        }
+        
         @media print {
-            body { background: white; padding: 0; }
-            .controls { display: none; }
-            .page-a4 { box-shadow: none; margin: 0; }
+            body {
+                background: white;
+                padding: 0;
+            }
+            .controls {
+                display: none;
+            }
+            .page-a4 {
+                box-shadow: none;
+                margin: 0;
+            }
         }
     </style>
 </head>
@@ -154,154 +170,126 @@
 
     <div class="controls">
         <button class="btn" onclick="window.print()">Drukuj / Zapisz do PDF</button>
-        <button class="btn" onclick="window.history.back()">Wróć do Formularza</button>
+        <button class="btn" id="saveImgBtn" onclick="saveAsImage()">Zapisz do PNG</button>
+        <button class="btn" onclick="window.location.href = 'skierowanie.html'">Wróć do Formularza</button>
     </div>
 
     <div class="page-a4" id="referralPage">
-        
+    
+        <div class="watermark">
+            <img src="logo.png" alt="Znak wodny"> </div>
+
         <div class="ref-header">
-            <div id="unitLogo" class="logo-box">
-                 <img id="logoImg" src="" alt="Logo Jednostki" style="display: none;"/>
-                <span id="logoText">Miejsce na LOGO</span>
+            <div class="ref-header-top" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                <div id="unitLogo" style="width: 40%; min-height: 70px; border: 1px dashed #aaa; display: flex; align-items: center; justify-content: center; border-radius: 4px; padding: 5px;">
+                    <img src="logo.png" alt="Logo Jednostki" style="max-width: 100%; max-height: 90px; object-fit: contain;">
+                </div>
+                <div style="width: 25%; text-align: right;">
+                    <span class="ref-value" id="dispIssueDate"></span>
+                    <span class="ref-label">Data wystawienia</span>
+                </div>
             </div>
-
-            <div style="width: 25%; text-align: right;">
-                <div id="qrCodeArea" style="width: 80px; height: 80px; margin-left: auto; margin-bottom: 5px;"></div>
-                <span class="data-value" style="font-size: 16px;" id="dispErc"></span>
-                <span class="data-label">4-cyfrowy kod dostępu / Kod Skierowania</span>
-                <span class="data-value" style="margin-top: 10px;" id="dispIssueDate"></span>
-                <span class="data-label">Data wystawienia</span>
-            </div>
-        </div>
-
-        <div class="ref-title">SKIEROWANIE (E-Skierowanie)</div>
-
-        <div class="ref-box">
-            <h4>Dane Jednostki Wystawiającej</h4>
-            <div class="data-row">
-                <div class="data-field">
-                    <span class="data-value" id="dispUnitName"></span>
-                    <span class="data-label">Nazwa podmiotu leczniczego</span>
-                </div>
-                <div class="data-field">
-                    <span class="data-value" id="dispDocName"></span>
-                    <span class="data-label">Lekarz wystawiający</span>
-                </div>
-                <div class="data-field">
-                    <span class="data-value" id="dispBadgeNumber"></span> 
-                    <span class="data-label">Numer Odznaki</span> 
-                </div>
+            <div class="ref-header-bottom" style="text-align: center;">
+                <div class="ref-title">E-Skierowanie</div>
             </div>
         </div>
 
-        <div class="ref-box">
-            <h4>Dane Pacjenta</h4>
-            <div class="data-row">
-                <div class="data-field">
-                    <span class="data-value" id="dispPatientName"></span>
-                    <span class="data-label">Imię i Nazwisko</span>
-                </div>
-                <div class="data-field">
-                    <span class="data-value" id="dispPesel"></span>
-                    <span class="data-label">PESEL</span>
-                </div>
-                <div class="data-field">
-                    <span class="data-value" id="dispDob"></span>
-                    <span class="data-label">Data urodzenia</span>
-                </div>
+        <div class="ref-section two-cols">
+            <div>
+                <span class="ref-value" id="dispPatientName"></span>
+                <span class="ref-label">Imię i Nazwisko Pacjenta</span>
+            </div>
+            <div>
+                <span class="ref-value" id="dispPesel"></span>
+                <span class="ref-label">SSN</span>
             </div>
         </div>
 
-        <div class="ref-box">
-            <h4>Rodzaj i Cel Świadczenia</h4>
-            <div class="data-row">
-                <div class="data-field">
-                    <span class="data-value" id="dispReferralType"></span>
-                    <span class="data-label">Rodzaj świadczenia/usługi</span>
+        <div class="ref-section">
+            <div class="two-cols">
+                <div>
+                    <span class="ref-value" id="dispReferralType"></span>
+                    <span class="ref-label">Typ Skierowania</span>
                 </div>
-                <div class="data-field" style="flex: 2;">
-                    <span class="data-value" id="dispTargetUnit"></span>
-                    <span class="data-label">Jednostka/Miejsce docelowe skierowania</span>
+                <div>
+                    <span class="ref-value" id="dispTargetUnit"></span>
+                    <span class="ref-label">Jednostka Docelowa</span>
                 </div>
             </div>
-            
-            <div class="data-row">
-                <div class="data-field">
-                    <span class="data-value" id="dispIcd10"></span>
-                    <span class="data-label">Rozpoznanie kliniczne (ICD-10)</span>
-                </div>
+            <div class="ref-reason-box">
+                <span class="ref-label">Rozpoznanie (ICD-10)</span>
+                <span class="ref-value" id="dispIcd10" style="font-size: 14px; margin-bottom: 10px;"></span>
+                
+                <span class="ref-label">Opis i cel skierowania</span>
+                <span class="ref-value" id="dispDescription" style="font-weight: normal; font-size: 11px;"></span>
             </div>
         </div>
 
-        <div class="ref-box">
-            <h4>Uzasadnienie Skierowania i Informacje Kliniczne</h4>
-            <div class="description-box" id="dispDescription">
-                </div>
+        <div class="ref-section two-cols">
+            <div>
+                <span class="ref-value" id="dispDocName"></span>
+                <span class="ref-label">Imię i Nazwisko Lekarza</span>
+            </div>
+            <div>
+                <span class="ref-value" id="dispBadgeNumber"></span>
+                <span class="ref-label">Odznaka</span>
+            </div>
+            <div>
+                <span class="ref-value" id="dispUnitName"></span>
+                <span class="ref-label">Nazwa Jednostki</span>
+            </div>
         </div>
-
-        <div class="signature-section">
-            <div class="signature-pad">
+        
+        <div class="ref-footer">
+            <div class="signature-area">
                 <img id="dispSignature" class="signature-img" src="" alt="Podpis Lekarza" style="display: none;" />
-                <span class="data-label" style="border: none;">Podpis elektroniczny/odręczny Lekarza Wystawiającego</span>
+                <p>Podpis elektroniczny/odręczny Lekarza</p>
+            </div>
+            <div class="code-area">
+                <div id="qrCodeArea"></div>
+                <span class="ref-value" style="font-size: 16px; margin-top: 5px;" id="dispERCode"></span>
+                <span class="ref-label">Kod dostępu</span>
             </div>
         </div>
+        
     </div>
 
     <script>
-        // ----------------------------------
-        // OPIS: Logika JavaScript dla View
-        // Pobieranie i wyświetlanie danych
-        // ----------------------------------
-
         // 1. Pobranie parametrów URL
         const urlParams = new URLSearchParams(window.location.search);
-
-        // OPIS: Funkcja dekodująca i zwracająca wartość parametru
         function getParam(key) {
             const value = urlParams.get(key);
-            return value ? decodeURIComponent(value) : '---';
+            // POPRAWKA ImgBB: dekodujemy znaki
+            return value ? decodeURIComponent(value) : '---'; 
         }
 
-        // 2. Wypełnianie pól stałymi danymi
-        document.getElementById('dispIssueDate').textContent = getParam('id');
-        document.getElementById('dispUnitName').textContent = getParam('un');
-        document.getElementById('dispDocName').textContent = getParam('dn');
-        document.getElementById('dispBadgeNumber').textContent = getParam('bn'); 
-        
+        // 2. Wypełnianie pól
         document.getElementById('dispPatientName').textContent = `${getParam('pn')} ${getParam('ps')}`;
         document.getElementById('dispPesel').textContent = getParam('p');
-        document.getElementById('dispDob').textContent = getParam('d');
-
+        
         document.getElementById('dispReferralType').textContent = getParam('rt');
         document.getElementById('dispTargetUnit').textContent = getParam('tu');
         document.getElementById('dispIcd10').textContent = getParam('i');
         document.getElementById('dispDescription').textContent = getParam('des');
-        
-        const eReferralCode = getParam('erc');
-        document.getElementById('dispErc').textContent = eReferralCode;
 
-        // 3. Obsługa Podpisu
-        const signatureSource = getParam('sig'); 
+        document.getElementById('dispDocName').textContent = getParam('dn');
+        document.getElementById('dispBadgeNumber').textContent = getParam('bn');
+        document.getElementById('dispUnitName').textContent = getParam('un');
+        document.getElementById('dispIssueDate').textContent = getParam('id');
+
+        const eReferralCode = getParam('erc');
+        document.getElementById('dispERCode').textContent = eReferralCode;
+
+        // 3. Obsługa Podpisu (dla Base64 i URL)
+        const signatureSource = getParam('sig');
         const signatureImg = document.getElementById('dispSignature'); 
 
-        if (signatureSource && signatureSource !== '---') {
+        if (signatureSource && (signatureSource.startsWith('data:image') || signatureSource.startsWith('http'))) {
             signatureImg.src = signatureSource; 
             signatureImg.style.display = 'block';
         }
-        
-        // 4. Obsługa Logo (przykład, jeśli logo byłoby przekazywane)
-        // OPIS: Jeśli chcesz wstawić stałe logo, możesz tutaj osadzić Base64 lub URL.
-        /* const logoImgElement = document.getElementById('logoImg');
-        const logoTextElement = document.getElementById('logoText');
-        const logoSource = "Wklej_Base64_lub_URL_logo_tutaj";
-        if (logoSource.length > 5) {
-            logoImgElement.src = logoSource;
-            logoImgElement.style.display = 'block';
-            logoTextElement.style.display = 'none';
-        }
-        */
 
-        // 5. Generowanie Kodu QR
+        // 4. Generowanie Kodu QR
         const qrCodeArea = document.getElementById('qrCodeArea');
         const qrContent = `https://ikp.pacjent.gov.pl/skierowanie?kod=${eReferralCode}`; 
 
@@ -314,8 +302,35 @@
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
-        } else {
-            qrCodeArea.innerHTML = '<span class="data-label" style="font-size:10px;">Brak kodu QR</span>';
+        }
+        
+        // 5. Funkcja zapisu do PNG
+        function saveAsImage() {
+            const element = document.getElementById('referralPage');
+            const saveBtn = document.getElementById('saveImgBtn');
+            const originalText = saveBtn.textContent;
+
+            saveBtn.textContent = 'Generowanie obrazu...';
+            saveBtn.disabled = true;
+
+            html2canvas(element, {
+                scale: 3,
+                useCORS: true, // Dla ImgBB
+                backgroundColor: null 
+            }).then(canvas => {
+                const dataUrl = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = 'skierowanie.png';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            }).finally(() => {
+                saveBtn.textContent = originalText;
+                saveBtn.disabled = false;
+            });
         }
     </script>
 </body>
