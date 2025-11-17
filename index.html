@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nawigacja - Strona Główna</title>
+  <style>
+    /* Proste style dla czytelności */
+    body {
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+      background-color: #f4f6fb; /* Tło pasujące do Twoich plików */
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 600px;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(12, 15, 30, 0.06); /* Cień pasujący do Twoich plików */
+      text-align: center;
+    }
+    h1 {
+      color: #0f172a;
+      margin-bottom: 25px;
+    }
+    
+    /* ---------------------------------- */
+    /* DIV NAWIGACYJNY, O KTÓRY PYTASZ  */
+    /* ---------------------------------- */
+    .nawigacja {
+      padding: 20px;
+      background-color: #f9fafb; /* Lekkie tło dla samego menu */
+      border: 1px solid #e6e9ef; /* Obramowanie pasujące do Twoich plików */
+      border-radius: 8px;
+    }
+    .nawigacja a {
+      display: block; /* Linki jeden pod drugim */
+      background-color: #0b67ff; /* Kolor akcentu z Twoich plików */
+      color: white;
+      text-decoration: none;
+      padding: 12px 20px;
+      margin: 10px 0;
+      border-radius: 5px;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
+    .nawigacja a:hover {
+      background-color: #0056d6; /* Ciemniejszy odcień przy najechaniu */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Strona Główna</h1>
+    <p>Wybierz stronę, do której chcesz przejść:</p>
+
+    <div class="nawigacja">
+      <a href="recepty.html">Formularz E-Recepty</a>
+      <a href="view.html">Podgląd E-Recepty</a>
+      <a href="skierowanie.html">Formularz E-Skierowania</a>
+      <a href="skierowanie_view.html">Podgląd E-Skierowania</a>
+    </div>
+  </div>
+
+</body>
+</html>
