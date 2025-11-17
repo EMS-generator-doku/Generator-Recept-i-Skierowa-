@@ -37,6 +37,7 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             padding: 30mm; /* Marginesy do druku */
             margin-bottom: 20px;
+            position: relative; /* <-- POPRAWKA 1: Dodano position relative */
         }
 
         /* Elementy kontrolne poza stroną A4 */
@@ -69,7 +70,8 @@
             border-bottom: 2px solid #000;
             padding-bottom: 10px;
         }
-        }
+        /* Usunięto błędny, dodatkowy nawias '}' */
+        
         .rp-title {
             font-weight: bold;
             font-size: 24px;
@@ -146,22 +148,30 @@
             gap: 15px;
             align-items: flex-end;
         }
-        /* Znak wodny */
+
+        /* Znak wodny (POPRAWIONY) */
         .watermark {
-            position: fixed; /* Będzie pływać nad zawartością, ale nie scrolluje */
+            position: absolute; /* <-- POPRAWKA 2: Zmiana z 'fixed' na 'absolute' */
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) rotate(-45deg); /* Przesunięcie do środka i obrót */
-            opacity: 0.08; /* Duża przezroczystość */
-            z-index: -1; /* Umieść pod resztą zawartości */
-            pointer-events: none; /* Zapobiega interakcji ze znakiem wodnym */
+            transform: translate(-50%, -50%) rotate(-45deg);
+            opacity: 0.08;
+            z-index: 0; /* <-- POPRAWKA 3: Zmiana z '-1' na '0' */
+            pointer-events: none;
         }
         
         .watermark img {
-            width: 600px; /* Duży rozmiar logo */
+            width: 600px;
             height: auto;
             display: block;
         }
+
+        /* POPRAWKA 4: Ustawienie treści NAD znakiem wodnym */
+        .rp-header, .rp-info, .rp-patient, .rp-meds, .rp-doctor, .rp-footer {
+            position: relative;
+            z-index: 1;
+        }
+
         /* ---------------------------------- */
         /* OPIS: Styl dla druku (usuwamy tło i kontrolki) */
         /* ---------------------------------- */
@@ -181,9 +191,6 @@
     </style>
 </head>
 <body>
-    <div class="watermark">
-        <img src="logo.png" alt="Znak wodny">
-    </div>
     <div class="controls">
         <button class="btn" onclick="window.print()">Drukuj / Zapisz do PDF</button>
         <button class="btn" onclick="window.history.back()">Wróć do Formularza</button>
@@ -191,26 +198,25 @@
 
     <div class="page-a4" id="receptaPage">
         
+        <div class="watermark">
+            <img src="logo.png" alt="Znak wodny">
+        </div>
+        
         <div class="rp-header">
-
-    <div class="rp-header-top" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-        
-        <div id="unitLogo" style="width: 40%; min-height: 70px; border: 1px dashed #aaa; display: flex; align-items: center; justify-content: center; border-radius: 4px; padding: 5px;">
-            <img src="logo.png" alt="Logo Jednostki" style="max-width: 100%; max-height: 90px; object-fit: contain;">
+            <div class="rp-header-top" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                <div id="unitLogo" style="width: 40%; min-height: 70px; border: 1px dashed #aaa; display: flex; align-items: center; justify-content: center; border-radius: 4px; padding: 5px;">
+                    <img src="logo.png" alt="Logo Jednostki" style="max-width: 100%; max-height: 90px; object-fit: contain;">
+                </div>
+                <div style="width: 25%; text-align: right;">
+                    <span class="rp-value" id="dispIssueDate"></span>
+                    <span class="rp-label">Data wystawienia</span>
+                </div>
+            </div>
+            <div class="rp-header-bottom" style="text-align: center;">
+                <div class="rp-title">Recepta</div>
+                <div style="font-size: 10px; font-weight: bold; margin-top: 5px;">Symulator edukacyjny</div>
+            </div>
         </div>
-        
-        <div style="width: 25%; text-align: right;">
-            <span class="rp-value" id="dispIssueDate"></span>
-            <span class="rp-label">Data wystawienia</span>
-        </div>
-    </div>
-
-    <div class="rp-header-bottom" style="text-align: center;">
-        <div class="rp-title">Recepta</div>
-        <div style="font-size: 10px; font-weight: bold; margin-top: 5px;">Symulator edukacyjny</div>
-    </div>
-
-</div>
 
         <div class="rp-info">
             <span class="rp-value" id="dispUnitName"></span>
@@ -240,6 +246,7 @@
                         <th style="width: 35%;">Nazwa, Dawka, Postać</th>
                         <th style="width: 30%;">Dawkowanie</th>
                         <th style="width: 15%;">Opakowania</th>
+                        <th style="width: 20%;">Odpłatność</th>
                     </tr>
                 </thead>
                 <tbody id="medsTableBody">
@@ -385,8 +392,3 @@
 </body>
 
 </html>
-
-
-
-
-
