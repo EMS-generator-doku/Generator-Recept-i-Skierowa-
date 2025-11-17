@@ -40,7 +40,8 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             padding: 30mm; /* Marginesy do druku */
             margin-bottom: 20px;
-            position: relative; /* <-- POPRAWKA 1: Dodano position relative */
+            position: relative; /* Potrzebne dla znaku wodnego */
+            overflow: hidden; /* Ukryj wystający znak wodny */
         }
 
         /* Elementy kontrolne poza stroną A4 */
@@ -72,12 +73,10 @@
         /* OPIS: Style elementów recepty */
         /* ---------------------------------- */
         .rp-header {
-            /* Usunęliśmy display: flex, justify-content i align-items */
             margin-bottom: 20px;
             border-bottom: 2px solid #000;
             padding-bottom: 10px;
         }
-        /* Usunięto błędny, dodatkowy nawias '}' */
         
         .rp-title {
             font-weight: bold;
@@ -158,12 +157,12 @@
 
         /* Znak wodny (POPRAWIONY) */
         .watermark {
-            position: absolute; /* <-- POPRAWKA 2: Zmiana z 'fixed' na 'absolute' */
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
             opacity: 0.08;
-            z-index: 0; /* <-- POPRAWKA 3: Zmiana z '-1' na '0' */
+            z-index: 0; /* Pod treścią */
             pointer-events: none;
         }
         
@@ -173,25 +172,25 @@
             display: block;
         }
 
-        /* POPRAWKA 4: Ustawienie treści NAD znakiem wodnym */
+        /* Ustawienie treści NAD znakiem wodnym */
         .rp-header, .rp-info, .rp-patient, .rp-meds, .rp-doctor, .rp-footer {
             position: relative;
             z-index: 1;
         }
 
         /* ---------------------------------- */
-        /* OPIS: Styl dla druku (usuwamy tło i kontrolki) */
+        /* OPIS: Styl dla druku */
         /* ---------------------------------- */
         @media print {
             body {
-                background: white; /* Białe tło w druku */
+                background: white;
                 padding: 0;
             }
             .controls {
-                display: none; /* Ukrywamy przyciski kontrolne */
+                display: none; /* Ukrywamy przyciski */
             }
             .page-a4 {
-                box-shadow: none; /* Bez cienia w druku */
+                box-shadow: none;
                 margin: 0;
             }
         }
@@ -207,8 +206,7 @@
     <div class="page-a4" id="receptaPage">
         
         <div class="watermark">
-            <img src="logo.png" alt="Znak wodny">
-        </div>
+            <img src="logo.png" alt="Znak wodny"> </div>
         
         <div class="rp-header">
             <div class="rp-header-top" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
@@ -302,6 +300,7 @@
         // Opis: Funkcja dekodująca i zwracająca wartość parametru
         function getParam(key) {
             const value = urlParams.get(key);
+            // POPRAWKA ImgBB: dekodujemy znaki (np. %3A) z powrotem na link URL
             return value ? decodeURIComponent(value) : 'BRAK DANYCH';
         }
 
@@ -328,34 +327,20 @@
 
             leki.forEach(lek => {
                 const [name, dosage, qty, payment] = lek.split('|');
-
-                // Tworzenie nowego wiersza tabeli
                 const row = medsTableBody.insertRow();
-
-                // Komórka 1: Nazwa
-                let cell1 = row.insertCell();
-                cell1.textContent = name || '---';
-
-                // Komórka 2: Dawkowanie
-                let cell2 = row.insertCell();
-                cell2.textContent = dosage || '---';
-
-                // Komórka 3: Opakowania
-                let cell3 = row.insertCell();
-                cell3.textContent = qty || '1';
-
-                // Komórka 4: Odpłatność
-                let cell4 = row.insertCell();
-                cell4.textContent = payment || '100%';
+                row.insertCell().textContent = name || '---';
+                row.insertCell().textContent = dosage || '---';
+                row.insertCell().textContent = qty || '1';
+                row.insertCell().textContent = payment || '100%';
             });
         }
 
 
-        // 4. Obsługa Podpisu
-        const signatureSource = getParam('sig'); // Zmieniono nazwę zmiennej dla jasności
+        // 4. Obsługa Podpisu (działa dla Base64 i URL)
+        const signatureSource = getParam('sig'); 
         const signatureImg = document.getElementById('dispSignature');
 
-        // ZMIANA: Sprawdź, czy to Base64 LUB link (zaczyna się od 'http')
+        // Sprawdź, czy to Base64 LUB link (zaczyna się od 'http')
         if (signatureSource && (signatureSource.startsWith('data:image') || signatureSource.startsWith('http'))) {
             signatureImg.src = signatureSource; // Użyj Base64 LUB linku jako źródła
             signatureImg.style.display = 'block';
@@ -370,9 +355,9 @@
         if (eReceptaCode && eReceptaCode.length === 16) {
              // Użycie biblioteki JsBarcode
             JsBarcode(barcodeElement, eReceptaCode, {
-                format: "CODE128", // Standard Code 128
-                displayValue: true, // Wyświetlanie kodu pod kreskami
-                text: eReceptaCode.match(/.{1,4}/g).join('-'), // Formatowanie tekstu jako 1234-5678-..
+                format: "CODE128", 
+                displayValue: true, 
+                text: eReceptaCode.match(/.{1,4}/g).join('-'), 
                 height: 50,
                 width: 1.5,
                 margin: 0
@@ -398,44 +383,34 @@
             qrCodeArea.innerHTML = '<span class="rp-label" style="font-size:10px;">Brak kodu QR</span>';
         }
 
-        // ----------------------------------
-        // ZMIANA: Dodano funkcję zapisu do PNG
-        // ----------------------------------
+        // 6. Funkcja zapisu do PNG
         function saveAsImage() {
             const element = document.getElementById('receptaPage'); // Nasza strona A4
             const saveBtn = document.getElementById('saveImgBtn');
             const originalText = saveBtn.textContent;
 
-            // Tymczasowa zmiana tekstu na przycisku
             saveBtn.textContent = 'Generowanie obrazu...';
             saveBtn.disabled = true;
 
             html2canvas(element, {
-                scale: 3, // Zwiększa rozdzielczość (ważne dla czytelności)
-                useCORS: true, // Pozwala na załadowanie logo z innych domen (jeśli takowe jest)
-                backgroundColor: null // Użyj tła elementu (w naszym wypadku białego)
+                scale: 3, // Lepsza rozdzielczość
+                useCORS: true, // Pozwala na ładowanie obrazów z innych domen (jak ImgBB)
+                backgroundColor: null 
             }).then(canvas => {
-                // Konwertuj <canvas> na obraz PNG
                 const dataUrl = canvas.toDataURL('image/png');
-
-                // Stwórz link do pobrania obrazu
                 const link = document.createElement('a');
                 link.href = dataUrl;
                 link.download = 'recepta.png'; // Nazwa pobieranego pliku
-
-                // Symuluj kliknięcie, aby pobrać plik
+                
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
 
             }).finally(() => {
-                // Przywróć przycisk do normalnego stanu
                 saveBtn.textContent = originalText;
                 saveBtn.disabled = false;
             });
         }
     </script>
 </body>
-
 </html>
-
