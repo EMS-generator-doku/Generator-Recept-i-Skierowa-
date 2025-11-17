@@ -6,6 +6,9 @@
     <title>Podgląd Recepty - Symulator</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <style>
         /* ---------------------------------- */
         /* OPIS: Style dla podglądu recepty */
@@ -59,6 +62,10 @@
         }
         .btn:hover {
             background: #0959cc;
+        }
+        .btn:disabled {
+            background: #aaa;
+            cursor: not-allowed;
         }
 
         /* ---------------------------------- */
@@ -193,6 +200,7 @@
 <body>
     <div class="controls">
         <button class="btn" onclick="window.print()">Drukuj / Zapisz do PDF</button>
+        <button class="btn" id="saveImgBtn" onclick="saveAsImage()">Zapisz do PNG</button>
         <button class="btn" onclick="window.history.back()">Wróć do Formularza</button>
     </div>
 
@@ -214,7 +222,7 @@
             </div>
             <div class="rp-header-bottom" style="text-align: center;">
                 <div class="rp-title">Recepta</div>
-
+                <div style="font-size: 10px; font-weight: bold; margin-top: 5px;">Symulator edukacyjny</div>
             </div>
         </div>
 
@@ -388,8 +396,44 @@
         } else {
             qrCodeArea.innerHTML = '<span class="rp-label" style="font-size:10px;">Brak kodu QR</span>';
         }
+
+        // ----------------------------------
+        // ZMIANA: Dodano funkcję zapisu do PNG
+        // ----------------------------------
+        function saveAsImage() {
+            const element = document.getElementById('receptaPage'); // Nasza strona A4
+            const saveBtn = document.getElementById('saveImgBtn');
+            const originalText = saveBtn.textContent;
+
+            // Tymczasowa zmiana tekstu na przycisku
+            saveBtn.textContent = 'Generowanie obrazu...';
+            saveBtn.disabled = true;
+
+            html2canvas(element, {
+                scale: 3, // Zwiększa rozdzielczość (ważne dla czytelności)
+                useCORS: true, // Pozwala na załadowanie logo z innych domen (jeśli takowe jest)
+                backgroundColor: null // Użyj tła elementu (w naszym wypadku białego)
+            }).then(canvas => {
+                // Konwertuj <canvas> na obraz PNG
+                const dataUrl = canvas.toDataURL('image/png');
+
+                // Stwórz link do pobrania obrazu
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = 'recepta.png'; // Nazwa pobieranego pliku
+
+                // Symuluj kliknięcie, aby pobrać plik
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            }).finally(() => {
+                // Przywróć przycisk do normalnego stanu
+                saveBtn.textContent = originalText;
+                saveBtn.disabled = false;
+            });
+        }
     </script>
 </body>
 
 </html>
-
