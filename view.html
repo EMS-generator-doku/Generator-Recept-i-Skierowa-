@@ -146,7 +146,22 @@
             gap: 15px;
             align-items: flex-end;
         }
-
+        /* Znak wodny */
+        .watermark {
+            position: fixed; /* Będzie pływać nad zawartością, ale nie scrolluje */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg); /* Przesunięcie do środka i obrót */
+            opacity: 0.08; /* Duża przezroczystość */
+            z-index: -1; /* Umieść pod resztą zawartości */
+            pointer-events: none; /* Zapobiega interakcji ze znakiem wodnym */
+        }
+        
+        .watermark img {
+            width: 600px; /* Duży rozmiar logo */
+            height: auto;
+            display: block;
+        }
         /* ---------------------------------- */
         /* OPIS: Styl dla druku (usuwamy tło i kontrolki) */
         /* ---------------------------------- */
@@ -166,7 +181,9 @@
     </style>
 </head>
 <body>
-
+    <div class="watermark">
+        <img src="TWOJE_LOGO.png" alt="Znak wodny">
+    </div>
     <div class="controls">
         <button class="btn" onclick="window.print()">Drukuj / Zapisz do PDF</button>
         <button class="btn" onclick="window.history.back()">Wróć do Formularza</button>
@@ -368,6 +385,7 @@
 </body>
 
 </html>
+
 
 
 
