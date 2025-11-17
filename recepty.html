@@ -30,7 +30,7 @@
       padding: 20px;
     }
     
-    /* ZMIANA: UKŁAD DWUKOLUMNOWY (jak w skierowaniu) */
+    /* POPRAWKA UKŁADU: Dwie kolumny (jak w skierowaniu) */
     .container {
       max-width: 1200px; /* Szerszy kontener dla 2 kolumn */
       margin: 0 auto;
@@ -336,11 +336,28 @@
     window.addEventListener('DOMContentLoaded', () => {
 
       // 1. Inicjalizacja Płótna Podpisu (Signature Pad)
-      // To zadziała, bo biblioteka jest w <head>
       const canvas = document.getElementById('signaturePad');
       const signaturePad = new SignaturePad(canvas, {
         backgroundColor: 'rgb(255, 255, 255)' // Tło płótna
       });
+
+      // ---- POPRAWKA NA KURSOR ----
+      // Funkcja synchronizująca rozmiar CSS z rozdzielczością płótna
+      function resizeCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext("2d").scale(ratio, ratio);
+        signaturePad.clear(); // Wyczyść po zmianie rozmiaru
+      }
+
+      // Zmień rozmiar przy załadowaniu strony
+      resizeCanvas();
+
+      // Zmieniaj rozmiar, gdy okno przeglądarki się zmienia
+      window.addEventListener("resize", resizeCanvas);
+      // ---- KONIEC POPRAWKI ----
+
 
       // Czyszczenie podpisu
       document.getElementById('clearSigBtn').addEventListener('click', () => {
@@ -497,8 +514,8 @@
       params.append('un', encodeURIComponent(data.unitName));
       params.append('erc', data.eReceptaCode.replace(/-/g, '')); // Usuwamy myślniki z kodu
       
-      // Przekazujemy link LUB Base64
-      params.append('sig', data.signatureBase64); // Nie trzeba kodować, bo Base64 i URL są bezpieczne
+      // POPRAWKA DLA ImgBB: Musimy zakodować URL, aby znaki specjalne (np. '?' lub '&') nie zepsuły naszego linku
+      params.append('sig', encodeURIComponent(data.signatureBase64)); 
       
       params.append('leki', encodeURIComponent(finalLekiString));
 
