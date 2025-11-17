@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Generator Recept - Formularz</title>
+  <style>
+    /* ---------------------------------- */
+    /* OPIS: Sekcja Stylów CSS (UI) */
+    /* ---------------------------------- */
+    :root {
+      --bg: #f4f6fb; /* Tło strony */
+      --card: #ffffff; /* Tło kart/paneli */
+      --accent: #0b67ff; /* Główny kolor akcentu (niebieski) */
+      --muted: #6b7280; /* Kolor tekstu pomocniczego */
+      --border: #e6e9ef; /* Kolor obramowań */
+      --shadow: 0 6px 18px rgba(12, 15, 30, 0.06); /* Cień dla kart */
+    }
+    * {
+      box-sizing: border-box; /* Model pudełkowy, ułatwiający układ */
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif; /* Preferowane fonty */
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: #0f172a;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .header {
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .brand {
+      font-weight: 700;
+      font-size: 24px;
+      color: var(--accent);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr; /* Podział na dwie kolumny: Formularz i Podgląd/Akcje */
+      gap: 20px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    h3 {
+      margin-top: 0;
+      color: #1f2937;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      margin-top: 12px;
+    }
+    input[type=text], input[type=number], select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+    .row > * {
+      flex: 1; /* Równy podział szerokości w wierszu */
+    }
+    /* ---------------------------------- */
+    /* OPIS: Style dla listy leków */
+    /* ---------------------------------- */
+    .med-list {
+      margin-top: 15px;
+    }
+    .med-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #f1f3f8;
+      border-radius: 8px;
+    }
+    .med-item input {
+      margin-top: 0;
+    }
+    .med-item .name-field {
+      flex: 3; /* Nazwa i dawkowanie zajmują więcej miejsca */
+    }
+    .med-item .qty-field {
+      flex: 1; /* Opakowania i odpłatność zajmują mniej miejsca */
+      max-width: 120px;
+    }
+    .remove-btn {
+      background: #f87171; /* Czerwony przycisk usuwania */
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      line-height: 1;
+      height: 38px;
+    }
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      transition: background 0.2s;
+      margin-top: 15px;
+    }
+    .btn:hover {
+        background: #0959cc;
+    }
+    .btn.ghost {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    /* ---------------------------------- */
+    /* OPIS: Style dla Podpisu */
+    /* ---------------------------------- */
+    .signature-pad {
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      cursor: crosshair;
+      margin-top: 10px;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .actions .btn {
+        margin-top: 0;
+        flex: 1;
+    }
+    .link-output {
+        padding: 15px;
+        background: #eef2ff; /* Jasnoniebieskie tło dla linku */
+        border: 1px solid #d3e0ff;
+        border-radius: 8px;
+        word-break: break-all;
+        font-size: 14px;
+        margin-top: 20px;
+        font-weight: 500;
+    }
+
+    /* Media Query dla responsywności (jedna kolumna na mniejszych ekranach) */
+    @media(max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">Generator Recept - Symulator</div>
+      <div class="muted">Wypełnij formularz, aby wygenerować link do podglądu recepty.</div>
+    </div>
+
+    <form id="prescriptionForm" class="layout">
+      <div>
+        <div class="card">
+          <h3>1. Dane Pacjenta</h3>
+          <div class="row">
+            <div>
+              <label for="patientName">Imię</label>
+              <input id="patientName" name="patientName" type="text" placeholder="Jan" value="Jan" required />
+            </div>
+            <div>
+              <label for="patientSurname">Nazwisko</label>
+              <input id="patientSurname" name="patientSurname" type="text" placeholder="Kowalski" value="Kowalski" required />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="pesel">PESEL</label>
+              <input id="pesel" name="pesel" type="text" placeholder="88010112345" value="88010112345" required minlength="11" maxlength="11" />
+            </div>
+            <div>
+              <label for="dob">Data urodzenia (R-M-D)</label>
+              <input id="dob" name="dob" type="text" placeholder="1988-01-01" value="1988-01-01" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>2. Dane Lekarza i Jednostki</h3>
+          <label for="docName">Imię i Nazwisko Lekarza</label>
+          <input id="docName" name="docName" type="text" placeholder="dr Anna Nowak" value="dr Anna Nowak" required />
+          <div class="row">
+            <div>
+              <label for="pwz">Numer PWZ</label>
+              <input id="pwz" name="pwz" type="text" placeholder="1234567" value="1234567" required />
+            </div>
+            <div>
+              <label for="issueDate">Data wystawienia</label>
+              <input id="issueDate" name="issueDate" type="date" required />
+            </div>
+          </div>
+          <label for="unitName">Nazwa jednostki (np. NZOZ Rodzina)</label>
+          <input id="unitName" name="unitName" type="text" value="NZOZ Rodzina" required />
+          <label>Miejsce na Logo Jednostki (Podgląd)</label>
+          <div class="logo-placeholder" style="border: 1px dashed #ccc; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); border-radius: 8px;">
+            Miejsce zarezerwowane na logo (osadzone w kodzie `view.html`)
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>3. Lista Leków (<span id="medCount">0</span>)</h3>
+          <div id="medList" class="med-list">
+            </div>
+          <button type="button" id="addMedBtn" class="btn ghost">Dodaj Lek</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>4. Podpis Lekarza</h3>
+          <label>Narysuj podpis poniżej (lub wgraj obraz)</label>
+          <canvas id="signatureCanvas" class="signature-pad" width="360" height="150"></canvas>
+          <div class="actions">
+            <button type="button" id="clearSigBtn" class="btn ghost">Wyczyść</button>
+            <label for="uploadSig" class="btn" style="flex: 1; text-align: center;">Wgraj Plik Podpisu</label>
+            <input type="file" id="uploadSig" style="display: none;" accept="image/*" />
+          </div>
+          <input type="hidden" id="signatureBase64" name="signatureBase64" />
+        </div>
+
+        <div class="card">
+          <h3>5. Generowanie Recepty</h3>
+          <label for="eReceptaCode">Kod E-recepty (opcjonalnie do kodu QR/Kreskowego)</label>
+          <input id="eReceptaCode" name="eReceptaCode" type="text" placeholder="4x4 cyfry (np. 1234-5678-9012-3456)" value="1234-5678-9012-3456" />
+
+          <button type="submit" id="generateLinkBtn" class="btn">Wygeneruj Link do Recepty</button>
+
+          <div id="resultLink" class="link-output" style="display: none;">
+            **Link do podglądu:**
+            <p id="generatedUrl" style="margin: 5px 0 0; font-weight: 700;"></p>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // ----------------------------------
+    // OPIS: Logika JavaScript
+    // ----------------------------------
+
+    // Elementy DOM
+    const form = document.getElementById('prescriptionForm');
+    const medListContainer = document.getElementById('medList');
+    const addMedBtn = document.getElementById('addMedBtn');
+    const medCountSpan = document.getElementById('medCount');
+    const resultLinkDiv = document.getElementById('resultLink');
+    const generatedUrlP = document.getElementById('generatedUrl');
+
+    // Canvas do podpisu
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    const clearSigBtn = document.getElementById('clearSigBtn');
+    const uploadSigInput = document.getElementById('uploadSig');
+    const signatureBase64Input = document.getElementById('signatureBase64');
+
+    // Ustawienie dzisiejszej daty jako domyślnej
+    document.getElementById('issueDate').valueAsDate = new Date();
+
+
+    // ----------------------------------
+    // FUNKCJA: Zarządzanie Listą Leków
+    // ----------------------------------
+    let medIndex = 0;
+
+    // Opis: Dodaje nowy wiersz formularza dla leku
+    function addMedRow(name = '', dosage = '', quantity = '', payment = '100%') {
+      const id = medIndex++;
+      const item = document.createElement('div');
+      item.className = 'med-item';
+      item.id = `med-item-${id}`;
+      item.innerHTML = `
+        <div class="name-field">
+          <label>Nazwa leku, dawka, postać</label>
+          <input type="text" id="medName-${id}" placeholder="np. Paracetamol 500mg, tabl." value="${name}" required />
+        </div>
+        <div class="name-field">
+          <label>Dawkowanie</label>
+          <input type="text" id="medDosage-${id}" placeholder="np. 1 tabl. co 8h" value="${dosage}" required />
+        </div>
+        <div class="qty-field">
+          <label>Opakowania</label>
+          <input type="number" id="medQty-${id}" min="1" placeholder="Liczba" value="${quantity || 1}" required />
+        </div>
+        <div class="qty-field">
+          <label>Odpłatność</label>
+          <select id="medPayment-${id}" required>
+            <option value="100%" ${payment === '100%' ? 'selected' : ''}>100%</option>
+            <option value="50%" ${payment === '50%' ? 'selected' : ''}>50%</option>
+            <option value="30%" ${payment === '30%' ? 'selected' : ''}>30%</option>
+            <option value="Ryczałt" ${payment === 'Ryczałt' ? 'selected' : ''}>Ryczałt</option>
+            <option value="Bezpłatny" ${payment === 'Bezpłatny' ? 'selected' : ''}>Bezpłatny</option>
+          </select>
+        </div>
+        <button type="button" class="remove-btn" data-id="${id}">X</button>
+      `;
+      medListContainer.appendChild(item);
+
+      // Aktualizacja licznika
+      updateMedCount();
+    }
+
+    // Opis: Usuwa wiersz leku na podstawie ID
+    function removeMedRow(id) {
+        const item = document.getElementById(`med-item-${id}`);
+        if (item) {
+            medListContainer.removeChild(item);
+            updateMedCount();
+        }
+    }
+
+    // Opis: Aktualizuje liczbę leków
+    function updateMedCount() {
+        medCountSpan.textContent = medListContainer.children.length;
+    }
+
+    // Listener na przycisk "Dodaj Lek"
+    addMedBtn.addEventListener('click', () => {
+        addMedRow('', '', 1, '100%'); // Dodaj pusty wiersz z domyślnymi wartościami
+    });
+
+    // Listener na przyciski "X" (usuwanie leku)
+    medListContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-btn')) {
+            const id = e.target.getAttribute('data-id');
+            removeMedRow(id);
+        }
+    });
+
+    // Wstawienie domyślnych leków na start
+    addMedRow('Paracetamol 500mg, tabl.', '1 tabl. co 8h', 1, '100%');
+    addMedRow('Amoxicillinum 1g, tabl.', '1 tabl. co 12h', 2, 'Ryczałt');
+
+
+    // ----------------------------------
+    // FUNKCJA: Rysowanie Podpisu (Canvas)
+    // ----------------------------------
+    let isDrawing = false; // Czy mysz jest wciśnięta
+    let lastX = 0;
+    let lastY = 0;
+
+    ctx.strokeStyle = '#000000'; // Kolor czarny
+    ctx.lineWidth = 2; // Grubość linii
+    ctx.lineCap = 'round'; // Zaokrąglone końce linii
+
+    // Funkcja do rysowania
+    function draw(e) {
+      if (!isDrawing) return;
+      // Normalizujemy pozycję na canvasie (eliminacja przesunięcia strony/scrolla)
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.clientX || e.touches[0].clientX;
+      const clientY = e.clientY || e.touches[0].clientY;
+
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY); // Zaczynamy od ostatniej pozycji
+      ctx.lineTo(x, y); // Rysujemy do aktualnej pozycji
+      ctx.stroke();
+
+      [lastX, lastY] = [x, y]; // Aktualizujemy ostatnią pozycję
+    }
+
+    // Listener do rozpoczęcia rysowania (myszka i dotyk)
+    ['mousedown', 'touchstart'].forEach(eventName => {
+      canvas.addEventListener(eventName, (e) => {
+        e.preventDefault(); // Zapobieganie przesunięciu strony na dotyku
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.clientX || e.touches[0].clientX;
+        const clientY = e.clientY || e.touches[0].clientY;
+        [lastX, lastY] = [clientX - rect.left, clientY - rect.top];
+      });
+    });
+
+    // Listener do rysowania (myszka i dotyk)
+    ['mousemove', 'touchmove'].forEach(eventName => {
+      canvas.addEventListener(eventName, draw);
+    });
+
+    // Listener do zakończenia rysowania (myszka i dotyk)
+    ['mouseup', 'touchend', 'mouseout'].forEach(eventName => {
+      canvas.addEventListener(eventName, () => {
+        if (isDrawing) {
+            isDrawing = false;
+            // Zapis Base64 po zakończeniu rysowania
+            saveSignature();
+        }
+      });
+    });
+
+    // Opis: Czyści canvas i pole hidden
+    clearSigBtn.addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      signatureBase64Input.value = '';
+    });
+
+    // Opis: Zapisuje podpis z canvasa do Base64
+    function saveSignature() {
+        // Sprawdzamy czy canvas nie jest pusty
+        const isEmpty = !ctx.getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0);
+
+        if (!isEmpty) {
+            // Konwersja canvasa do Base64 i zapis do ukrytego pola
+            signatureBase64Input.value = canvas.toDataURL('image/png');
+        } else {
+            signatureBase64Input.value = '';
+        }
+    }
+
+    // Opis: Wczytywanie pliku podpisu (zamiast rysowania)
+    uploadSigInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    // Czyścimy canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    // Rysujemy wgrany obraz na canvas
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    // Zapis Base64
+                    saveSignature();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // ----------------------------------
+    // FUNKCJA: Generowanie Linku (Submission)
+    // ----------------------------------
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // 1. Zbieranie danych z formularza
+      const data = {
+        patientName: document.getElementById('patientName').value,
+        patientSurname: document.getElementById('patientSurname').value,
+        pesel: document.getElementById('pesel').value,
+        dob: document.getElementById('dob').value,
+        docName: document.getElementById('docName').value,
+        pwz: document.getElementById('pwz').value,
+        issueDate: document.getElementById('issueDate').value,
+        unitName: document.getElementById('unitName').value,
+        eReceptaCode: document.getElementById('eReceptaCode').value,
+        signatureBase64: signatureBase64Input.value // Podpis w Base64
+      };
+
+      // 2. Kodowanie listy leków (Format A: | i ;)
+      let lekiEncoded = [];
+      const medItems = medListContainer.querySelectorAll('.med-item');
+
+      medItems.forEach((item, index) => {
+        // Pobieramy dane z pól input/select w danym wierszu leku
+        const name = item.querySelector(`#medName-${index}`).value.trim();
+        const dosage = item.querySelector(`#medDosage-${index}`).value.trim();
+        const qty = item.querySelector(`#medQty-${index}`).value.trim();
+        const payment = item.querySelector(`#medPayment-${index}`).value;
+
+        // Kodujemy wiersz: Nazwa|Dawkowanie|Ilość|Odpłatność
+        const medString = `${name}|${dosage}|${qty}|${payment}`;
+        lekiEncoded.push(medString);
+      });
+
+      // Łączymy w jeden ciąg, rozdzielając średnikiem
+      const finalLekiString = lekiEncoded.join(';');
+
+      // 3. Budowanie URL z parametrami
+      const params = new URLSearchParams();
+      // Używamy encodeURIComponent, aby bezpiecznie zakodować polskie znaki i znaki specjalne
+      params.append('pn', encodeURIComponent(data.patientName));
+      params.append('ps', encodeURIComponent(data.patientSurname));
+      params.append('p', data.pesel);
+      params.append('d', data.dob);
+      params.append('dn', encodeURIComponent(data.docName));
+      params.append('pw', data.pwz);
+      params.append('id', data.issueDate);
+      params.append('un', encodeURIComponent(data.unitName));
+      params.append('erc', data.eReceptaCode.replace(/-/g, '')); // Usuwamy myślniki z kodu
+      params.append('sig', data.signatureBase64); // Podpis Base64
+      params.append('leki', encodeURIComponent(finalLekiString));
+
+      // Budujemy finalny link do view.html
+      // Ważne: view.html musi znajdować się w tym samym katalogu!
+      const finalUrl = `view.html?${params.toString()}`;
+
+      // 4. Wyświetlanie linku
+      generatedUrlP.innerHTML = `<a href="${finalUrl}" target="_blank">${finalUrl}</a>`;
+      resultLinkDiv.style.display = 'block';
+
+      // Opcjonalnie: automatyczne otwarcie w nowym oknie
+      // window.open(finalUrl, '_blank');
+    });
+  </script>
+</body>
+</html>

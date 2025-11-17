@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Podgląd Recepty - Symulator</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        /* ---------------------------------- */
+        /* OPIS: Style dla podglądu recepty */
+        /* ---------------------------------- */
+        :root {
+            --paper-width: 210mm; /* Szerokość A4 dla podglądu */
+            --bg: #f4f6fb;
+            --accent: #0b67ff;
+            --border: #e6e9ef;
+        }
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif; /* Typowy font dla wydruków */
+        }
+        body {
+            background: var(--bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Styl dla obszaru recepty (A4) */
+        .page-a4 {
+            width: var(--paper-width);
+            min-height: 297mm; /* Wysokość A4 */
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 30mm; /* Marginesy do druku */
+            margin-bottom: 20px;
+        }
+
+        /* Elementy kontrolne poza stroną A4 */
+        .controls {
+            width: var(--paper-width);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: var(--accent);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn:hover {
+            background: #0959cc;
+        }
+
+        /* ---------------------------------- */
+        /* OPIS: Style elementów recepty */
+        /* ---------------------------------- */
+        .rp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+        .rp-title {
+            font-weight: bold;
+            font-size: 24px;
+            text-transform: uppercase;
+        }
+        .rp-info, .rp-patient, .rp-meds, .rp-doctor {
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px dashed #000;
+        }
+
+        .rp-label {
+            font-size: 10px;
+            color: #555;
+            margin-top: 5px;
+            display: block;
+        }
+        .rp-value {
+            font-weight: bold;
+            font-size: 12px;
+            display: block;
+        }
+        .two-cols {
+            display: flex;
+            gap: 20px;
+        }
+        .two-cols > div {
+            flex: 1;
+        }
+
+        /* Tabela leków */
+        .med-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .med-table th, .med-table td {
+            padding: 8px 5px;
+            border: 1px solid #ddd;
+            text-align: left;
+            font-size: 11px;
+            vertical-align: top;
+        }
+        .med-table th {
+            background-color: #f7f7f7;
+            font-weight: bold;
+        }
+
+        /* Podpis i Kody */
+        .rp-footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .signature-area {
+            width: 45%;
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            text-align: center;
+        }
+        .signature-area p {
+            font-size: 10px;
+            margin: 5px 0 0;
+        }
+        .signature-img {
+            max-width: 100%;
+            max-height: 80px;
+            display: block;
+            margin: 0 auto 5px;
+        }
+        .code-area {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        /* ---------------------------------- */
+        /* OPIS: Styl dla druku (usuwamy tło i kontrolki) */
+        /* ---------------------------------- */
+        @media print {
+            body {
+                background: white; /* Białe tło w druku */
+                padding: 0;
+            }
+            .controls {
+                display: none; /* Ukrywamy przyciski kontrolne */
+            }
+            .page-a4 {
+                box-shadow: none; /* Bez cienia w druku */
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button class="btn" onclick="window.print()">Drukuj / Zapisz do PDF</button>
+        <button class="btn" onclick="window.history.back()">Wróć do Formularza</button>
+    </div>
+
+    <div class="page-a4" id="receptaPage">
+        
+        <div class="rp-header">
+            <div id="unitLogo" style="width: 25%; min-height: 50px; border: 1px dashed #aaa; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #555; border-radius: 4px;">
+                Miejsce na LOGO
+            </div>
+            <div style="text-align: center; width: 50%;">
+                <div class="rp-title">E-Recepta / Recepta RP</div>
+                <div style="font-size: 10px; font-weight: bold; margin-top: 5px;">Symulator edukacyjny</div>
+            </div>
+            <div style="width: 25%; text-align: right;">
+                <span class="rp-value" id="dispIssueDate"></span>
+                <span class="rp-label">Data wystawienia</span>
+            </div>
+        </div>
+
+        <div class="rp-info">
+            <span class="rp-value" id="dispUnitName"></span>
+            <span class="rp-label">Nazwa jednostki (np. Dane Świadczeniodawcy)</span>
+        </div>
+
+        <div class="rp-patient two-cols">
+            <div>
+                <span class="rp-value" id="dispPatientName"></span>
+                <span class="rp-label">Imię i Nazwisko Pacjenta</span>
+            </div>
+            <div>
+                <span class="rp-value" id="dispPesel"></span>
+                <span class="rp-label">PESEL</span>
+            </div>
+            <div>
+                <span class="rp-value" id="dispDob"></span>
+                <span class="rp-label">Data urodzenia</span>
+            </div>
+        </div>
+
+        <div class="rp-meds">
+            <span class="rp-value" style="font-size: 14px; font-style: italic;">Wykaz przepisanych leków:</span>
+            <table class="med-table">
+                <thead>
+                    <tr>
+                        <th style="width: 35%;">Nazwa, Dawka, Postać</th>
+                        <th style="width: 30%;">Dawkowanie</th>
+                        <th style="width: 15%;">Opakowania</th>
+                        <th style="width: 20%;">Odpłatność</th>
+                    </tr>
+                </thead>
+                <tbody id="medsTableBody">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="rp-doctor">
+            <div class="two-cols">
+                <div>
+                    <span class="rp-value" id="dispDocName"></span>
+                    <span class="rp-label">Imię i Nazwisko Lekarza</span>
+                </div>
+                <div>
+                    <span class="rp-value" id="dispPwz"></span>
+                    <span class="rp-label">PWZ (Prawo Wykonywania Zawodu)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="rp-footer">
+            <div class="signature-area">
+                <img id="dispSignature" class="signature-img" src="" alt="Podpis Lekarza" style="display: none;" />
+                <p>Podpis elektroniczny/odręczny Lekarza</p>
+            </div>
+            <div class="code-area">
+                <div id="barcodeArea" style="text-align: center;">
+                    <svg id="barcode"></svg>
+                    <span class="rp-label">Kod kreskowy recepty (Code 128)</span>
+                </div>
+                <div id="qrCodeArea" style="text-align: center; width: 80px; height: 80px;">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ----------------------------------
+        // OPIS: Logika JavaScript dla View
+        // ----------------------------------
+
+        // 1. Pobranie parametrów URL
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Opis: Funkcja dekodująca i zwracająca wartość parametru
+        function getParam(key) {
+            const value = urlParams.get(key);
+            return value ? decodeURIComponent(value) : 'BRAK DANYCH';
+        }
+
+        // 2. Wypełnianie pól stałymi danymi
+        document.getElementById('dispIssueDate').textContent = getParam('id');
+        document.getElementById('dispUnitName').textContent = getParam('un');
+
+        document.getElementById('dispPatientName').textContent = `${getParam('pn')} ${getParam('ps')}`;
+        document.getElementById('dispPesel').textContent = getParam('p');
+        document.getElementById('dispDob').textContent = getParam('d');
+
+        document.getElementById('dispDocName').textContent = getParam('dn');
+        document.getElementById('dispPwz').textContent = getParam('pw');
+
+
+        // 3. Wypełnianie tabeli leków
+        const lekiString = getParam('leki');
+        const medsTableBody = document.getElementById('medsTableBody');
+        medsTableBody.innerHTML = ''; // Czyścimy na wszelki wypadek
+
+        // Opis: Parsowanie ciągu leków (Nazwa|Dawkowanie|Ilość|Odpłatność;...)
+        if (lekiString && lekiString !== 'BRAK DANYCH') {
+            const leki = lekiString.split(';');
+
+            leki.forEach(lek => {
+                const [name, dosage, qty, payment] = lek.split('|');
+
+                // Tworzenie nowego wiersza tabeli
+                const row = medsTableBody.insertRow();
+
+                // Komórka 1: Nazwa
+                let cell1 = row.insertCell();
+                cell1.textContent = name || '---';
+
+                // Komórka 2: Dawkowanie
+                let cell2 = row.insertCell();
+                cell2.textContent = dosage || '---';
+
+                // Komórka 3: Opakowania
+                let cell3 = row.insertCell();
+                cell3.textContent = qty || '1';
+
+                // Komórka 4: Odpłatność
+                let cell4 = row.insertCell();
+                cell4.textContent = payment || '100%';
+            });
+        }
+
+
+        // 4. Obsługa Podpisu
+        const signatureBase64 = getParam('sig');
+        const signatureImg = document.getElementById('dispSignature');
+
+        if (signatureBase64 && signatureBase64.startsWith('data:image')) {
+            signatureImg.src = signatureBase64; // Użycie Base64 jako źródła obrazu
+            signatureImg.style.display = 'block';
+        }
+
+
+        // 5. Generowanie Kodów Kreskowych i QR
+        const eReceptaCode = getParam('erc'); // 16 cyfr bez myślników
+
+        // Kod Kreskowy (Code 128)
+        const barcodeElement = document.getElementById('barcode');
+        if (eReceptaCode && eReceptaCode.length === 16) {
+             // Użycie biblioteki JsBarcode
+            JsBarcode(barcodeElement, eReceptaCode, {
+                format: "CODE128", // Standard Code 128
+                displayValue: true, // Wyświetlanie kodu pod kreskami
+                text: eReceptaCode.match(/.{1,4}/g).join('-'), // Formatowanie tekstu jako 1234-5678-..
+                height: 50,
+                width: 1.5,
+                margin: 0
+            });
+        } else {
+            barcodeElement.innerHTML = '<span class="rp-label">Wprowadź poprawny kod e-recepty (16 cyfr)</span>';
+        }
+
+        // Kod QR (zwykle URL do IKP)
+        const qrCodeArea = document.getElementById('qrCodeArea');
+        const qrContent = "https://ikp.pacjent.gov.pl/?kod=" + eReceptaCode; // Przykładowy link
+
+        if (eReceptaCode && eReceptaCode.length === 16) {
+            new QRCode(qrCodeArea, {
+                text: qrContent,
+                width: 80,
+                height: 80,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        } else {
+            qrCodeArea.innerHTML = '<span class="rp-label" style="font-size:10px;">Brak kodu QR</span>';
+        }
+    </script>
+</body>
+</html>
