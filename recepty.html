@@ -4,7 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Generator Recept - Formularz</title>
-
+  
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
   
   <style>
     /* ---------------------------------- */
@@ -28,13 +29,16 @@
       color: #0f172a;
       padding: 20px;
     }
+    
+    /* POPRAWNY UKŁAD: Wyśrodkowana kolumna 900px */
     .container {
-      max-width: 900px; /* Nieco szerszy kontener */
+      max-width: 900px; 
       margin: 0 auto;
       display: grid;
       grid-template-columns: 1fr;
       gap: 20px;
     }
+    
     .card {
       background: var(--card);
       border-radius: 10px;
@@ -106,7 +110,7 @@
       background: #0056d6;
     }
     
-    /* ZMIANA: Przycisk dodatkowy (szary) */
+    /* Przycisk dodatkowy (szary) */
     .btn-secondary {
       background: var(--muted);
       color: white;
@@ -294,13 +298,11 @@
   </div>
 
   <script>
-    // ----------------------------------
-    // OPIS: Sekcja Logiki JavaScript
-    // ----------------------------------
-
+    // Upewniamy się, że kod JS działa dopiero po załadowaniu strony
     window.addEventListener('DOMContentLoaded', () => {
 
       // 1. Inicjalizacja Płótna Podpisu (Signature Pad)
+      // To zadziała, bo biblioteka jest w <head>
       const canvas = document.getElementById('signaturePad');
       const signaturePad = new SignaturePad(canvas, {
         backgroundColor: 'rgb(255, 255, 255)' // Tło płótna
@@ -314,7 +316,7 @@
       // 2. Automatyczne ustawienie daty wystawienia
       document.getElementById('issueDate').valueAsDate = new Date();
 
-      // ZMIANA: Funkcja do generowania losowego kodu recepty
+      // Funkcja do generowania losowego kodu recepty
       function generateRandomCode() {
           let code = '';
           for (let i = 0; i < 16; i++) {
@@ -324,7 +326,7 @@
           return code.match(/.{1,4}/g).join('-');
       }
 
-      // ZMIANA: Przypisanie funkcji do przycisku "Losuj"
+      // Przypisanie funkcji do przycisku "Losuj"
       const generateBtn = document.getElementById('generateCodeBtn');
       const codeInput = document.getElementById('eReceptaCode');
       generateBtn.addEventListener('click', () => {
@@ -418,7 +420,7 @@
         eReceptaCode: formData.get('eReceptaCode'),
       };
       
-      // ZMIANA: Pobranie danych podpisu (URL ma priorytet)
+      // Pobranie danych podpisu (URL ma priorytet)
       const signatureUrl = document.getElementById('signatureUrl').value.trim();
       let finalSignatureData = '';
       if (signatureUrl) {
@@ -461,7 +463,7 @@
       params.append('un', encodeURIComponent(data.unitName));
       params.append('erc', data.eReceptaCode.replace(/-/g, '')); // Usuwamy myślniki z kodu
       
-      // ZMIANA: Przekazujemy link LUB Base64
+      // Przekazujemy link LUB Base64
       params.append('sig', data.signatureBase64); // Nie trzeba kodować, bo Base64 i URL są bezpieczne
       
       params.append('leki', encodeURIComponent(finalLekiString));
@@ -485,4 +487,3 @@
   </script>
 </body>
 </html>
-
